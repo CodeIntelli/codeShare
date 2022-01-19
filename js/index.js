@@ -17,7 +17,7 @@ const Toast = document.querySelector(".toast");
 const copyBtn = document.querySelector("#copyBtn");
 const host = "https://shareitcode.herokuapp.com";
 const uploadUrl = `${host}/api/files`;
-const emailUrl = `${host}/api/files/send`;
+const emailUrl = `${host}/files/send`;
 const maxAllowedSize = 100 * 1024 * 1024;
 
 dropZone.addEventListener("dragover", (e) => {
@@ -36,7 +36,7 @@ dropZone.addEventListener("drop", (e) => {
   e.preventDefault();
   dropZone.classList.remove("dragged");
   const files = e.dataTransfer.files;
-  console.log(files);
+  // console.log(files);
   if (files.length) {
     fileInput.files = files;
     uploadFile();
@@ -63,21 +63,21 @@ const uploadFile = () => {
   }
 
   const file = fileInput.files;
-  console.log(file);
+  // console.log(file);
   if (file.size > maxAllowedSize) {
     showToast("warning", "you can't upload more then 100 mb");
     fileInput.value = "";
     return;
   }
-  console.log("file2");
+  // console.log("file2");
   progressContainer.style.display = "block";
   const formData = new FormData();
   formData.append("myfile", file[0]);
-  console.log("file3", file);
+  // console.log("file3", file);
   const xhr = new XMLHttpRequest();
-  console.log("file5");
+  // console.log("file5");
   xhr.onreadystatechange = () => {
-    console.log("file66");
+    // console.log("file66");
     if (xhr.readyState === XMLHttpRequest.DONE) {
       console.log(xhr.response);
       onUploadSuccess(JSON.parse(xhr.response));
@@ -90,8 +90,8 @@ const uploadFile = () => {
     fileInput.value = "";
     showToast("error", `Error In Upload: ${xhr.statusText}`);
   };
-  console.log(formData);
-  console.log(uploadUrl);
+  // console.log(formData);
+  // console.log(uploadUrl);
   xhr.open("POST", uploadUrl);
   xhr.send(formData);
 };
@@ -118,24 +118,35 @@ copyBtn.addEventListener("click", () => {
   showToast("success", "Link Copyed To Your Clipboard");
 });
 
+// dushyant.khoda007@gmail.com
+// dk9054254800@gmail.com
+
 emailForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const url = fileURL.value;
+  // console.log(fileURL.value);
+  const uuid_Data = url.split("/").slice(-1, 6);
+  // console.log(uuid_Data);
   const fromData = {
-    uuid: url.split("/").slice(-1, 1)[0],
-    emailTo: emailFrom.elements["to-email"].value,
-    emailFrom: emailFrom.elements["from-email"].value,
+    uuid: uuid_Data.toString(),
+    emailTo: emailForm.elements["to-email"].value,
+    emailFrom: emailForm.elements["from-email"].value,
   };
 
-  emailFrom[2].setAttribute("disabled", "true");
-  console.table(formData);
-
-  fetch(emailUrl, {
+  emailForm[2].setAttribute("disabled", "true");
+  console.table(JSON.stringify(fromData));
+  console.log(JSON.stringify(fromData));
+  let mailURL = `https://shareitcode.herokuapp.com/api/files/send`;
+  fetch(mailURL, {
     method: "POST",
-    header: {
+    mode: "cors", // no-cors, *cors, same-origin
+    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "same-origin", // include, *same-origin, omit
+    headers: {
       "Content-Type": "application/json",
+      // 'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: JSON.stringify(formData),
+    body: JSON.stringify(fromData),
   })
     .then((res) => res.json())
     .then(({ success }) => {
